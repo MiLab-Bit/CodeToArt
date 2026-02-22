@@ -10,7 +10,7 @@
 ## 使用方法 🚀
 
 1. **访问网页**
-   你可以直接访问工具页面：[CodeToArt](https://milab-bit.github.io/WeChatInfo/)
+   你可以直接访问工具页面：[CodeToArt](https://milab-bit.github.io/CodeToArt/)
 
 2. **输入 Python 代码**
    粘贴一段 Python 代码（如 `print("Hello, World!")`），工具会自动解析代码结构并生成艺术画。
