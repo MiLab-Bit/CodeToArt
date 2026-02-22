@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeToArt - Gemini AI Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Fira+Code:wght@400;500&family=Lora:ital,wght@0,400;0,600;1,400&family=Ma+Shan+Zheng&display=swap');
+
+        body {
+            background-color: #0f172a; /* Slate 900 */
+            color: #e2e8f0;
+            font-family: 'Lora', serif;
+        }
+
+        .font-code {
+            font-family: 'Fira Code', monospace;
+        }
+
+        .font-display {
+            font-family: 'Cinzel', serif;
+        }
+        
+        .font-art {
+            font-family: 'Ma Shan Zheng', cursive; /* Calligraphy style for AI text */
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b; 
+        }
+
+        .canvas-container {
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjMGUxNjI4Ii8+CjxwYXRoIGQ9Ik0wIDBMNCA0Wk00IDBMMCA0WiIgc3Ryb2tlPSIjMTUyMzNhIiBvcGFjaXR5PSIwLjEiLz4KPC9zdmc+');
+            transition: all 0.5s ease;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        /* Loading Spinner */
+        .loader {
+            border: 3px solid rgba(255,255,255,0.1);
+            border-radius: 50%;
+            border-top: 3px solid #facc15;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-ai {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-ai:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+        }
+        .btn-ai::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
+            transform: rotate(45deg);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+        
+        .feature-tag {
+            transition: all 0.3s ease;
+        }
+        .feature-tag:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* AI Interpretation Text Fade In */
+        .fade-in {
+            animation: fadeIn 1s ease-in forwards;
+            opacity: 0;
+        }
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header class="h-16 border-b border-slate-700 bg-slate-900 flex items-center justify-between px-6 z-10 shadow-md shrink-0">
+        <div class="flex items-center gap-3">
+            <i class="fas fa-palette text-amber-400 text-xl"></i>
+            <h1 class="font-display text-2xl font-bold tracking-wider text-amber-50">CodeToArt <span class="text-xs font-sans font-normal text-slate-400 ml-2 tracking-normal">Gemini Edition ✨</span></h1>
+        </div>
+        <div class="flex items-center gap-4 text-sm text-slate-400">
+            <a href="#" class="hover:text-amber-400 transition-colors"><i class="fab fa-github mr-1"></i> GitHub</a>
+            <span class="w-px h-4 bg-slate-700"></span>
+            <span class="hidden md:inline">v2.0.0 AI-Powered</span>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col md:flex-row overflow-hidden relative">
+        
+        <!-- Left Panel: Code Input -->
+        <div class="w-full md:w-1/3 lg:w-1/4 bg-slate-800 flex flex-col border-r border-slate-700 shadow-xl z-10">
+            <div class="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-800">
+                <h2 class="text-xs font-bold text-slate-300 uppercase tracking-widest"><i class="fas fa-code mr-2"></i>Code Input</h2>
+                <div class="flex gap-2">
+                    <button onclick="loadExample('hello')" class="text-xs px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-slate-300 transition-colors">Hello</button>
+                    <button onclick="loadExample('chaos')" class="text-xs px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-slate-300 transition-colors">Chaos</button>
+                </div>
+            </div>
+            
+            <div class="flex-1 relative group">
+                <textarea id="codeInput" class="w-full h-full bg-[#0d1117] text-slate-300 p-4 font-code text-sm resize-none focus:outline-none leading-relaxed transition-colors group-hover:bg-[#11161d]" spellcheck="false" placeholder="# 粘贴 Python 代码...
+def dream():
+    while True:
+        yield '✨'"></textarea>
+            </div>
+
+            <div class="p-5 bg-slate-800 border-t border-slate-700 space-y-3">
+                <div class="mb-2">
+                    <div class="flex justify-between text-xs text-slate-400 mb-1">
+                        <span>抽象程度 (Abstraction)</span>
+                        <span id="abstractionVal">Auto</span>
+                    </div>
+                    <input type="range" id="abstractionRange" min="1" max="10" value="8" class="w-full h-1 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-amber-500">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <button id="generateBtn" class="btn-primary py-3 rounded-lg text-slate-900 font-bold font-display tracking-wide flex justify-center items-center gap-2 group text-sm">
+                        <span>经典算法</span>
+                    </button>
+                    <button id="aiBtn" class="btn-ai py-3 rounded-lg text-white font-bold font-display tracking-wide flex justify-center items-center gap-2 group text-sm">
+                        <i class="fas fa-sparkles text-yellow-300"></i>
+                        <span>AI 注入灵魂</span>
+                    </button>
+                </div>
+                <p class="text-[10px] text-center text-slate-500">Gemini 将分析代码意境并定制配色</p>
+            </div>
+        </div>
+
+        <!-- Right Panel: Canvas & Visualization -->
+        <div class="flex-1 bg-slate-900 relative flex flex-col items-center justify-center p-4 md:p-8 overflow-hidden">
+            
+            <!-- Background Decorations -->
+            <div class="absolute top-0 left-0 w-full h-full opacity-30 pointer-events-none overflow-hidden">
+                <div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-900/20 rounded-full blur-3xl"></div>
+                <div class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-amber-900/10 rounded-full blur-3xl"></div>
+            </div>
+
+            <!-- AI Interpretation Panel (New) -->
+            <div id="aiPanel" class="absolute top-6 left-6 max-w-sm z-20 pointer-events-none opacity-0 transition-opacity duration-1000">
+                <div class="bg-black/60 backdrop-filter backdrop-blur-md p-4 rounded-lg border-l-4 border-indigo-500 shadow-lg transform transition-transform">
+                    <h3 class="text-indigo-400 text-xs font-bold uppercase mb-1 tracking-widest">Gemini 艺术解读</h3>
+                    <p id="aiText" class="font-art text-lg text-slate-200 leading-relaxed drop-shadow-md">
+                        正在解读代码意境...
+                    </p>
+                </div>
+            </div>
+
+            <!-- Stats Overlay -->
+            <div id="statsPanel" class="absolute top-6 right-6 glass-panel rounded-lg p-4 w-64 transform translate-x-full opacity-0 transition-all duration-500 z-20">
+                <h3 class="text-xs font-bold text-slate-400 uppercase mb-3 border-b border-slate-600 pb-2">代码逻辑映射</h3>
+                <ul class="space-y-3">
+                    <li class="flex items-center justify-between text-sm feature-tag p-1 rounded">
+                        <span class="text-amber-400"><i class="fas fa-sun mr-2"></i>函数 (Nodes)</span>
+                        <span id="funcCount" class="font-code text-white">0</span>
+                    </li>
+                    <li class="flex items-center justify-between text-sm feature-tag p-1 rounded">
+                        <span class="text-cyan-400"><i class="fas fa-spin fa-circle-notch mr-2"></i>循环 (Flow)</span>
+                        <span id="loopCount" class="font-code text-white">0</span>
+                    </li>
+                    <li class="flex items-center justify-between text-sm feature-tag p-1 rounded">
+                        <span class="text-emerald-400"><i class="fas fa-palette mr-2"></i>风格 (Theme)</span>
+                        <span id="themeName" class="font-code text-white text-xs truncate max-w-[80px]">Classic</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Canvas Container -->
+            <div class="relative canvas-container rounded-sm border-[8px] border-[#1a1a1a] bg-[#050505] shadow-2xl max-w-full max-h-full aspect-square md:aspect-auto md:h-[85vh] md:w-auto overflow-hidden">
+                <canvas id="artCanvas" class="block w-full h-full cursor-pointer"></canvas>
+                
+                <!-- Initial State Placeholder -->
+                <div id="placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-slate-500 bg-slate-900/90 z-10 transition-opacity duration-500">
+                    <i class="fas fa-laptop-code text-6xl mb-4 text-slate-600"></i>
+                    <p class="font-display text-lg">输入代码以开始</p>
+                    <div class="flex gap-4 mt-4">
+                        <span class="text-xs bg-amber-500/10 text-amber-500 px-2 py-1 rounded">经典算法生成</span>
+                        <span class="text-xs bg-indigo-500/10 text-indigo-400 px-2 py-1 rounded">✨ Gemini AI生成</span>
+                    </div>
+                </div>
+
+                <!-- Loading Overlay -->
+                <div id="loadingOverlay" class="absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-20 hidden backdrop-blur-sm">
+                    <div class="loader mb-4"></div>
+                    <p id="loadingText" class="text-indigo-300 font-display text-sm tracking-wider animate-pulse">Consulting the AI Muse...</p>
+                </div>
+            </div>
+
+            <!-- Action Bar -->
+            <div id="actionBar" class="absolute bottom-8 flex gap-4 opacity-0 transition-opacity duration-500 transform translate-y-4">
+                <button onclick="downloadArt()" class="glass-panel px-6 py-2 rounded-full text-slate-300 hover:text-white hover:bg-white/10 transition-colors flex items-center gap-2 text-sm font-medium">
+                    <i class="fas fa-download"></i>
+                </button>
+                <button onclick="toggleAnimation()" class="glass-panel px-6 py-2 rounded-full text-slate-300 hover:text-white hover:bg-white/10 transition-colors flex items-center gap-2 text-sm font-medium">
+                    <i class="fas fa-pause" id="pauseIcon"></i> <span id="pauseText">暂停</span>
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // --- 0. Gemini API Setup ---
+        const apiKey = ""; // API Key injected by environment
+
+        async function callGemini(prompt) {
+            if (!apiKey) {
+                console.warn("No API Key provided. Using mock data.");
+                // Mock response for testing without key
+                return JSON.stringify({
+                    palette: ["#ff0000", "#00ff00", "#0000ff", "#ffff00", "#00ffff"],
+                    turbulence: 1.5,
+                    particleCount: 3000,
+                    description: "模拟模式：API Key 未设置。系统正在使用默认的随机参数来展示功能。",
+                    themeName: "Mock Mode"
+                });
+            }
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: {
+                    responseMimeType: "application/json"
+                }
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (!response.ok) throw new Error(`API Error: ${response.status}`);
+                const data = await response.json();
+                const text = data.candidates[0].content.parts[0].text;
+                return text;
+            } catch (error) {
+                console.error("Gemini API Failed:", error);
+                throw error; // Rethrow to handle in UI
+            }
+        }
+
+        // --- 1. 配置与状态 ---
+        const canvas = document.getElementById('artCanvas');
+        const ctx = canvas.getContext('2d');
+        const generateBtn = document.getElementById('generateBtn');
+        const aiBtn = document.getElementById('aiBtn');
+        const codeInput = document.getElementById('codeInput');
+        const placeholder = document.getElementById('placeholder');
+        const statsPanel = document.getElementById('statsPanel');
+        const actionBar = document.getElementById('actionBar');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const loadingText = document.getElementById('loadingText');
+        const aiPanel = document.getElementById('aiPanel');
+        const aiText = document.getElementById('aiText');
+        const themeNameDisplay = document.getElementById('themeName');
+
+        let isAnimating = false;
+        let animationId;
+        let particles = [];
+        let flowField = [];
+        let cols, rows;
+        let scale = 10;
+        
+        // 默认梵高调色板
+        const defaultPalette = [
+            '#1a1a2e', '#16213e', '#0f3460', '#533483', 
+            '#e94560', '#f4d03f', '#f2a365', '#8ca6d9', '#ececec'
+        ];
+        
+        let currentPalette = [...defaultPalette];
+        let currentTurbulence = 1.0;
+
+        // --- 2. 代码分析引擎 (Regex + Gemini) ---
+        
+        function regexAnalyze(code) {
+            const functions = (code.match(/def\s+\w+/g) || []).length;
+            const loops = (code.match(/(for|while)\s+/g) || []).length;
+            const branches = (code.match(/(if|elif|else)\s+/g) || []).length;
+            const length = code.length;
+            let entropy = Math.min((functions * 2 + loops * 3 + branches + length / 100), 100);
+            
+            const seeds = [];
+            const lines = code.split('\n');
+            lines.forEach((line, index) => {
+                if (line.includes('def ')) seeds.push({type: 'star', y: index / lines.length});
+                if (line.includes('for ') || line.includes('while ')) seeds.push({type: 'swirl', y: index / lines.length});
+                if (line.includes('if ')) seeds.push({type: 'break', y: index / lines.length});
+            });
+
+            return { functions, loops, branches, entropy, seeds };
+        }
+
+        // --- 3. 粒子系统 ---
+
+        class Particle {
+            constructor(w, h, analysis, paletteOverride) {
+                this.w = w;
+                this.h = h;
+                this.analysis = analysis;
+                this.palette = paletteOverride || defaultPalette;
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * this.w;
+                this.y = Math.random() * this.h;
+                this.pos = {x: this.x, y: this.y};
+                this.vel = {x: 0, y: 0};
+                this.acc = {x: 0, y: 0};
+                this.maxSpeed = 2 + Math.random() * 2;
+                this.prevPos = {x: this.x, y: this.y};
+                
+                // Color selection logic
+                const entropy = this.analysis ? this.analysis.entropy : 10;
+                
+                // If using AI palette, we just pick random colors from it weighted by entropy
+                const pLen = this.palette.length;
+                if (Math.random() < 0.1) {
+                    // Accent color (usually last few in array)
+                    this.color = this.palette[Math.floor(Math.random() * 2 + pLen - 3)]; 
+                } else {
+                    // Base color
+                    this.color = this.palette[Math.floor(Math.random() * (pLen - 3))]; 
+                }
+                
+                // Fallback if palette is short
+                if (!this.color) this.color = this.palette[Math.floor(Math.random() * pLen)];
+
+                this.strokeWidth = Math.random() * 3 + 1;
+                this.life = Math.random() * 100 + 50;
+            }
+
+            update(flowField, cols) {
+                this.prevPos.x = this.pos.x;
+                this.prevPos.y = this.pos.y;
+
+                let x = Math.floor(this.pos.x / scale);
+                let y = Math.floor(this.pos.y / scale);
+                let index = x + y * cols;
+                
+                if (flowField[index]) {
+                    let angle = flowField[index].angle;
+                    this.acc.x = Math.cos(angle);
+                    this.acc.y = Math.sin(angle);
+                }
+
+                this.vel.x += this.acc.x;
+                this.vel.y += this.acc.y;
+                
+                const speed = Math.sqrt(this.vel.x*this.vel.x + this.vel.y*this.vel.y);
+                if (speed > this.maxSpeed) {
+                    this.vel.x = (this.vel.x / speed) * this.maxSpeed;
+                    this.vel.y = (this.vel.y / speed) * this.maxSpeed;
+                }
+
+                this.pos.x += this.vel.x;
+                this.pos.y += this.vel.y;
+                
+                this.acc.x = 0;
+                this.acc.y = 0;
+                this.life--;
+
+                if (this.pos.x > this.w || this.pos.x < 0 || this.pos.y > this.h || this.pos.y < 0 || this.life < 0) {
+                    this.reset();
+                }
+            }
+
+            show(ctx) {
+                ctx.beginPath();
+                ctx.lineWidth = this.strokeWidth;
+                ctx.strokeStyle = this.color;
+                ctx.lineCap = "round";
+                ctx.moveTo(this.prevPos.x, this.prevPos.y);
+                ctx.lineTo(this.pos.x, this.pos.y);
+                ctx.globalAlpha = 0.6;
+                ctx.stroke();
+                ctx.globalAlpha = 1.0;
+            }
+        }
+
+        function initFlowField(analysis, w, h, turbulenceMultiplier = 1.0) {
+            flowField = [];
+            cols = Math.floor(w / scale) + 1;
+            rows = Math.floor(h / scale) + 1;
+
+            for (let y = 0; y < rows; y++) {
+                for (let x = 0; x < cols; x++) {
+                    let index = x + y * cols;
+                    let angle = (x / cols) * Math.PI + (y/rows) * 0.5; 
+                    
+                    analysis.seeds.forEach(seed => {
+                        let seedY = seed.y * rows;
+                        let seedX = (seed.y * 12345 % cols);
+                        let dx = x - seedX;
+                        let dy = y - seedY;
+                        let dist = Math.sqrt(dx*dx + dy*dy);
+                        let radius = (seed.type === 'star') ? 15 : 20;
+                        
+                        if (dist < radius) {
+                            if (seed.type === 'star') {
+                                let starAngle = Math.atan2(dy, dx);
+                                angle = starAngle + Math.PI/2; 
+                            } else if (seed.type === 'swirl') {
+                                let swirlAngle = Math.atan2(dy, dx);
+                                angle = swirlAngle + dist * 0.2 * turbulenceMultiplier; // AI controls turbulence
+                            } else if (seed.type === 'break') {
+                                angle += (Math.random() * 2 - 1) * turbulenceMultiplier;
+                            }
+                        }
+                    });
+
+                    angle += Math.sin(x * 0.1) + Math.cos(y * 0.1);
+                    flowField[index] = { angle: angle };
+                }
+            }
+        }
+
+        // --- 4. Main Control & AI Logic ---
+
+        function resizeCanvas() {
+            const container = document.querySelector('.canvas-container');
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        async function startGeneration(useAI) {
+            const code = codeInput.value;
+            if (!code.trim()) return;
+
+            // Reset UI
+            if (animationId) cancelAnimationFrame(animationId);
+            isAnimating = false;
+            placeholder.style.opacity = '0';
+            setTimeout(() => placeholder.style.display = 'none', 500);
+            statsPanel.classList.add('translate-x-full', 'opacity-0');
+            aiPanel.style.opacity = '0';
+
+            // Show Loading
+            loadingOverlay.classList.remove('hidden');
+            
+            // Standard Analysis (Always runs for stats)
+            const analysis = regexAnalyze(code);
+            resizeCanvas();
+
+            try {
+                if (useAI) {
+                    loadingText.innerText = "Gemini 正在品味代码意境...";
+                    
+                    const prompt = `
+                    You are an abstract art director. Analyze this Python code:
+                    "${code.slice(0, 1000)}"
+                    
+                    Based on the code's logic, complexity, and "vibe", return a JSON object with:
+                    1. "palette": Array of 7 hex color strings.
+                    2. "turbulence": float between 0.5 (calm) and 3.0 (chaotic).
+                    3. "particleCount": int between 1500 and 4000.
+                    4. "themeName": Short 2-3 word theme name (e.g. "Recursive Dreams").
+                    5. "description": A poetic, artistic interpretation of this code in Chinese (max 30 words). Metaphorical.
+                    `;
+
+                    const resultStr = await callGemini(prompt);
+                    const aiData = JSON.parse(resultStr);
+
+                    // Apply AI Parameters
+                    currentPalette = aiData.palette;
+                    currentTurbulence = aiData.turbulence;
+                    
+                    // UI Updates
+                    aiText.innerText = aiData.description;
+                    themeNameDisplay.innerText = aiData.themeName;
+                    
+                    // Init Physics with AI Params
+                    initCanvasAndParticles(analysis, aiData.particleCount, currentTurbulence, currentPalette);
+                    
+                    // Show AI Panel
+                    aiPanel.style.opacity = '1';
+
+                } else {
+                    // Classic Mode
+                    loadingText.innerText = "Algorithmic Processing...";
+                    await new Promise(r => setTimeout(r, 600)); // Fake delay
+                    
+                    currentPalette = defaultPalette;
+                    currentTurbulence = 1.0;
+                    themeNameDisplay.innerText = "Classic Algo";
+                    
+                    initCanvasAndParticles(analysis, 2000 + analysis.entropy * 50, 1.0, defaultPalette);
+                }
+            } catch (e) {
+                console.error(e);
+                alert("AI Generation failed, falling back to classic mode.");
+                initCanvasAndParticles(analysis, 2000, 1.0, defaultPalette);
+            } finally {
+                loadingOverlay.classList.add('hidden');
+                
+                // Show UI
+                updateStats(analysis);
+                statsPanel.classList.remove('translate-x-full', 'opacity-0');
+                actionBar.classList.remove('opacity-0', 'translate-y-4');
+                
+                isAnimating = true;
+                animate();
+            }
+        }
+
+        function initCanvasAndParticles(analysis, count, turb, pal) {
+            ctx.fillStyle = pal[0]; // Base background
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            initFlowField(analysis, canvas.width, canvas.height, turb);
+            particles = [];
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle(canvas.width, canvas.height, analysis, pal));
+            }
+            drawStars(analysis, pal);
+        }
+
+        function drawStars(analysis, pal) {
+            // Stars use the "brightest" colors in palette (usually near middle/end)
+            const starColor = pal[pal.length - 2] || '#fff';
+            
+            analysis.seeds.filter(s => s.type === 'star').forEach(seed => {
+                let x = (seed.y * 12345 % cols) * scale;
+                let y = seed.y * canvas.height;
+                
+                const gradient = ctx.createRadialGradient(x, y, 5, x, y, 60);
+                gradient.addColorStop(0, hexToRgba(starColor, 0.9)); 
+                gradient.addColorStop(0.4, hexToRgba(pal[pal.length-3] || starColor, 0.4));
+                gradient.addColorStop(1, 'rgba(0,0,0,0)');
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(x, y, 60, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function hexToRgba(hex, alpha) {
+            // Simple helper
+            let c;
+            if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+                c= hex.substring(1).split('');
+                if(c.length== 3){
+                    c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+                }
+                c= '0x'+c.join('');
+                return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+','+alpha+')';
+            }
+            return 'rgba(255,255,255,'+alpha+')';
+        }
+
+        function animate() {
+            if (!isAnimating) return;
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update(flowField, cols);
+                particles[i].show(ctx);
+            }
+            animationId = requestAnimationFrame(animate);
+        }
+
+        function updateStats(analysis) {
+            animateValue("funcCount", 0, analysis.functions, 1000);
+            animateValue("loopCount", 0, analysis.loops, 1000);
+        }
+
+        function animateValue(id, start, end, duration) {
+            if (start === end) return;
+            const obj = document.getElementById(id);
+            if(!obj) return;
+            const range = end - start;
+            let current = start;
+            const increment = end > start ? 1 : -1;
+            const stepTime = Math.abs(Math.floor(duration / range));
+            const timer = setInterval(function() {
+                current += increment;
+                obj.innerHTML = current;
+                if (current == end) clearInterval(timer);
+            }, Math.max(stepTime, 50));
+        }
+
+        // --- 5. Interactions ---
+
+        function loadExample(type) {
+            if (type === 'hello') {
+                codeInput.value = `print("Hello World")
+def main():
+    msg = "Art is Logic"
+    print(msg)`;
+            } else if (type === 'chaos') {
+                codeInput.value = `import random
+def chaos_engine():
+    # A storm of logic
+    while True:
+        if random.random() > 0.5:
+            branch_left()
+        else:
+            branch_right()
+            
+def branch_left():
+    return "entropy"`;
+            }
+        }
+
+        function downloadArt() {
+            const link = document.createElement('a');
+            link.download = `code-art-${Date.now()}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        function toggleAnimation() {
+            isAnimating = !isAnimating;
+            const icon = document.getElementById('pauseIcon');
+            const text = document.getElementById('pauseText');
+            if (isAnimating) {
+                animate();
+                icon.className = "fas fa-pause";
+                text.innerText = "暂停";
+            } else {
+                cancelAnimationFrame(animationId);
+                icon.className = "fas fa-play";
+                text.innerText = "继续";
+            }
+        }
+
+        generateBtn.addEventListener('click', () => startGeneration(false));
+        aiBtn.addEventListener('click', () => startGeneration(true));
+        
+        resizeCanvas();
+
+    </script>
+</body>
+</html>
