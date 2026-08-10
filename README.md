@@ -2,6 +2,11 @@
 
 > 把一段代码献祭给画布，由流场粒子将其结构与气息凝练成一幅生成艺术画；点击画作坠入**命运幻境**，抽取大阿尔克那三牌阵，再由灵媒结合牌阵能量与代码特质，为你做一场「占卜式」的代码 review。
 
+## 🌐 在线体验
+
+**无需安装，点开即玩：** 👉 [https://codetoart.pages.dev](https://codetoart.pages.dev)
+
+
 CodeToArt 是一个**纯前端、零后端、零依赖**的生成艺术工具。它把代码当作一种「材料」——函数、循环、分支与整体熵能，被翻译成粒子流场的湍流、密度与笔触，生成独一无二的抽象画；再借塔罗的隐喻框架，把工程判断包装成神秘学叙事，让代码评审这件事变得可玩、可感。
 
 ---
@@ -59,22 +64,6 @@ CodeToArt 是一个**纯前端、零后端、零依赖**的生成艺术工具。
 
 ---
 
-## 🚀 本地运行
-
-项目是**纯静态、多文件、分层架构**的前端应用，使用原生 ES Modules，**无构建步骤、无 npm 依赖**。
-
-> ⚠️ 因使用 ES Modules（`type="module"`），**必须经静态服务器访问**；直接双击 `file://` 打开会因 CORS 报错。在 `CodeToArt/` 目录任选其一启动：
-
-```bash
-python -m http.server 8000
-# 或
-npx serve .
-```
-
-随后访问 `http://localhost:8000`。
-
----
-
 ## 📁 项目结构
 
 ```
@@ -105,19 +94,6 @@ CodeToArt/
 - **仓库解析**：GitHub REST API（无鉴权，受速率限制）。
 - **AI 灵媒**：可选，兼容 OpenAI Chat Completions 协议的任意端点。
 - **无后端、无构建步骤**，已部署于 Cloudflare Pages。
-
----
-
-## ☁️ 部署到 Cloudflare Pages
-
-```bash
-# 需要 Wrangler 与 Cloudflare API Token（账户 ID + Pages 编辑权限）
-export CLOUDFLARE_API_TOKEN=xxxx
-export CLOUDFLARE_ACCOUNT_ID=xxxx
-npx wrangler pages deploy . --project-name codetoart --branch main
-```
-
-> ⚠️ 若本机走本地代理（如 Clash / V2Ray，常见端口 7897），部署最后一步 `POST .../deployments`（大请求体）可能被代理断开（`UND_ERR_SOCKET: other side closed`）。遇到时先 `unset HTTP_PROXY HTTPS_PROXY http_proxy https_proxy` 直连再部署。
 
 ---
 
