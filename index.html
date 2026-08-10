@@ -162,7 +162,7 @@ def dream():
                 <div class="mb-2">
                     <div class="flex justify-between text-xs text-slate-400 mb-1">
                         <span>抽象程度 (Abstraction)</span>
-                        <span id="abstractionVal">Auto</span>
+                        <span id="abstractionVal">8</span>
                     </div>
                     <input type="range" id="abstractionRange" min="1" max="10" value="8" class="w-full h-1 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-amber-500">
                 </div>
@@ -326,6 +326,15 @@ def dream():
         let currentPalette = [...defaultPalette];
         let currentTurbulence = 1.0;
 
+        // 抽象程度 (1-10)，控制湍流强度、粒子数量与笔触粗细
+        let currentAbstraction = 8;
+        // 设备像素比，保证高清屏下画面清晰
+        let dpr = window.devicePixelRatio || 1;
+        // 当前笔触缩放（由抽象程度推导）
+        let currentStrokeScale = 1;
+        // 记录最近一次生成参数，用于窗口缩放后无损重绘
+        let lastGen = null;
+
         // --- 2. 代码分析引擎 (Regex + Gemini) ---
         
         function regexAnalyze(code) {
@@ -367,22 +376,16 @@ def dream():
                 this.prevPos = {x: this.x, y: this.y};
                 
                 // Color selection logic
-                const entropy = this.analysis ? this.analysis.entropy : 10;
-                
-                // If using AI palette, we just pick random colors from it weighted by entropy
                 const pLen = this.palette.length;
-                if (Math.random() < 0.1) {
-                    // Accent color (usually last few in array)
-                    this.color = this.palette[Math.floor(Math.random() * 2 + pLen - 3)]; 
-                } else {
-                    // Base color
-                    this.color = this.palette[Math.floor(Math.random() * (pLen - 3))]; 
-                }
-                
-                // Fallback if palette is short
-                if (!this.color) this.color = this.palette[Math.floor(Math.random() * pLen)];
+                const baseIdx = Math.max(0, Math.floor(Math.random() * Math.max(1, pLen - 3)));
+                const accentIdx = Math.min(pLen - 1, Math.floor(Math.random() * 2 + pLen - 3));
+                this.color = (Math.random() < 0.12)
+                    ? this.palette[accentIdx]
+                    : this.palette[baseIdx];
+                // 调色板过短时的兜底
+                if (!this.color) this.color = this.palette[Math.floor(Math.random() * pLen)] || '#ffffff';
 
-                this.strokeWidth = Math.random() * 3 + 1;
+                this.strokeWidth = (Math.random() * 3 + 1) * currentStrokeScale;
                 this.life = Math.random() * 100 + 50;
             }
 
@@ -475,15 +478,40 @@ def dream():
 
         function resizeCanvas() {
             const container = document.querySelector('.canvas-container');
-            canvas.width = container.clientWidth;
-            canvas.height = container.clientHeight;
+            const cw = container.clientWidth;
+            const ch = container.clientHeight;
+            dpr = window.devicePixelRatio || 1;
+            canvas.width = Math.floor(cw * dpr);
+            canvas.height = Math.floor(ch * dpr);
+            canvas.style.width = cw + 'px';
+            canvas.style.height = ch + 'px';
+            // 以 CSS 像素为绘图坐标，背景缓冲按 dpr 放大 → 高清且不改变物理逻辑
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         }
 
-        window.addEventListener('resize', resizeCanvas);
+        function getCssSize() {
+            return { w: canvas.clientWidth, h: canvas.clientHeight };
+        }
+
+        // 缩放窗口后，用已保存的参数按新尺寸无损重绘（不重复调用 AI、不闪烁）
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                if (!lastGen) { resizeCanvas(); return; }
+                resizeCanvas();
+                const { w, h } = getCssSize();
+                initCanvasAndParticles(lastGen.analysis, lastGen.count, lastGen.turbulence, lastGen.palette, w, h);
+            }, 200);
+        });
 
         async function startGeneration(useAI) {
             const code = codeInput.value;
             if (!code.trim()) return;
+
+            // 抽象程度归一化到 0~1，用于推导湍流、粒子数、笔触
+            const absNorm = (currentAbstraction - 1) / 9;
+            currentStrokeScale = 0.6 + absNorm * 0.8; // 0.6 ~ 1.4
 
             // Reset UI
             if (animationId) cancelAnimationFrame(animationId);
@@ -499,6 +527,7 @@ def dream():
             // Standard Analysis (Always runs for stats)
             const analysis = regexAnalyze(code);
             resizeCanvas();
+            const { w, h } = getCssSize();
 
             try {
                 if (useAI) {
@@ -520,16 +549,24 @@ def dream():
                     const aiData = JSON.parse(resultStr);
 
                     // Apply AI Parameters
-                    currentPalette = aiData.palette;
-                    currentTurbulence = aiData.turbulence;
-                    
+                    currentPalette = (Array.isArray(aiData.palette) && aiData.palette.length)
+                        ? aiData.palette
+                        : defaultPalette;
+                    // 抽象程度对 AI 结果做二次调制
+                    currentTurbulence = (aiData.turbulence || 1.0) * (0.6 + absNorm * 0.8);
+
                     // UI Updates
-                    aiText.innerText = aiData.description;
-                    themeNameDisplay.innerText = aiData.themeName;
+                    aiText.innerText = aiData.description || "（暂无解读）";
+                    themeNameDisplay.innerText = aiData.themeName || "AI Theme";
                     
+                    const count = Math.round(
+                        Math.min(4000, Math.max(1500, aiData.particleCount || 2500))
+                    );
+
                     // Init Physics with AI Params
-                    initCanvasAndParticles(analysis, aiData.particleCount, currentTurbulence, currentPalette);
-                    
+                    initCanvasAndParticles(analysis, count, currentTurbulence, currentPalette, w, h);
+                    lastGen = { analysis, palette: currentPalette, turbulence: currentTurbulence, count };
+
                     // Show AI Panel
                     aiPanel.style.opacity = '1';
 
@@ -539,15 +576,21 @@ def dream():
                     await new Promise(r => setTimeout(r, 600)); // Fake delay
                     
                     currentPalette = defaultPalette;
-                    currentTurbulence = 1.0;
+                    currentTurbulence = 0.5 + absNorm * 2.0; // 0.5 (calm) ~ 2.5 (chaotic)
                     themeNameDisplay.innerText = "Classic Algo";
                     
-                    initCanvasAndParticles(analysis, 2000 + analysis.entropy * 50, 1.0, defaultPalette);
+                    const count = Math.round(1500 + absNorm * 2500); // 1500 ~ 4000
+                    initCanvasAndParticles(analysis, count, currentTurbulence, defaultPalette, w, h);
+                    lastGen = { analysis, palette: defaultPalette, turbulence: currentTurbulence, count };
                 }
             } catch (e) {
                 console.error(e);
                 alert("AI Generation failed, falling back to classic mode.");
-                initCanvasAndParticles(analysis, 2000, 1.0, defaultPalette);
+                currentPalette = defaultPalette;
+                currentTurbulence = 0.5 + absNorm * 2.0;
+                const count = Math.round(1500 + absNorm * 2500);
+                initCanvasAndParticles(analysis, count, currentTurbulence, defaultPalette, w, h);
+                lastGen = { analysis, palette: defaultPalette, turbulence: currentTurbulence, count };
             } finally {
                 loadingOverlay.classList.add('hidden');
                 
@@ -561,25 +604,27 @@ def dream():
             }
         }
 
-        function initCanvasAndParticles(analysis, count, turb, pal) {
+        function initCanvasAndParticles(analysis, count, turb, pal, w, h) {
+            w = (w !== undefined) ? w : canvas.clientWidth;
+            h = (h !== undefined) ? h : canvas.clientHeight;
             ctx.fillStyle = pal[0]; // Base background
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillRect(0, 0, w, h);
             
-            initFlowField(analysis, canvas.width, canvas.height, turb);
+            initFlowField(analysis, w, h, turb);
             particles = [];
             for (let i = 0; i < count; i++) {
-                particles.push(new Particle(canvas.width, canvas.height, analysis, pal));
+                particles.push(new Particle(w, h, analysis, pal));
             }
-            drawStars(analysis, pal);
+            drawStars(analysis, pal, w, h);
         }
 
-        function drawStars(analysis, pal) {
+        function drawStars(analysis, pal, w, h) {
             // Stars use the "brightest" colors in palette (usually near middle/end)
             const starColor = pal[pal.length - 2] || '#fff';
             
             analysis.seeds.filter(s => s.type === 'star').forEach(seed => {
                 let x = (seed.y * 12345 % cols) * scale;
-                let y = seed.y * canvas.height;
+                let y = seed.y * h;
                 
                 const gradient = ctx.createRadialGradient(x, y, 5, x, y, 60);
                 gradient.addColorStop(0, hexToRgba(starColor, 0.9)); 
@@ -680,6 +725,13 @@ def branch_left():
                 text.innerText = "继续";
             }
         }
+
+        const abstractionRange = document.getElementById('abstractionRange');
+        const abstractionVal = document.getElementById('abstractionVal');
+        abstractionRange.addEventListener('input', (e) => {
+            currentAbstraction = parseInt(e.target.value, 10) || 8;
+            abstractionVal.innerText = currentAbstraction;
+        });
 
         generateBtn.addEventListener('click', () => startGeneration(false));
         aiBtn.addEventListener('click', () => startGeneration(true));

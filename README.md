@@ -30,29 +30,29 @@
 打开终端并运行以下命令，将仓库克隆到本地：
 
 ```bash
-git clone https://github.com/your-username/CodeToArt.git
+git clone https://github.com/MiLab-Bit/CodeToArt.git
 ```
 
-### 2. **安装依赖**
-
-进入项目文件夹：
+### 2. **进入项目文件夹**
 
 ```bash
 cd CodeToArt
 ```
 
-### 3. **运行本地服务器**
+### 3. **本地运行**
 
-如果你希望在本地运行该工具，可以通过以下命令启动本地服务器：
+这是一个**纯静态单页应用**，无需任何构建步骤，也没有 npm 依赖。
+
+- 直接用浏览器打开 `index.html` 即可使用；
+- 或在项目目录下启动一个静态服务器（推荐，避免个别浏览器对本地文件的限制）：
 
 ```bash
-npm install
-npm start
+# Python 3
+python -m http.server 8000
+# 然后访问 http://localhost:8000
 ```
 
-### 4. **访问本地页面**
-
-启动后，在浏览器中访问 `http://localhost:3000`，即可在本地使用该工具。
+如需启用 Gemini AI 配色功能，按下方说明配置 API 密钥即可；未配置时会自动回退到经典算法。
 
 ## 启用 AI 功能 ✨
 
