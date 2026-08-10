@@ -15,15 +15,37 @@
 
 ## 🚀 本地运行
 
-这是一个**纯静态单页应用**，无需构建、无 npm 依赖。
+这是一个**纯静态、多文件、分层架构**的前端应用，使用原生 ES Modules，**无构建步骤、无 npm 依赖**。
 
-- 直接用浏览器打开 `index.html`；或
-- 在项目目录启动静态服务器：
+> ⚠️ 因为用了 ES Modules（`type="module"`），**必须通过静态服务器访问**，直接双击 `file://` 打开会因 CORS 报错。在项目目录任选其一启动：
 
 ```bash
 python -m http.server 8000
-# 访问 http://localhost:8000
+# 或
+npx serve .
 ```
+
+然后访问 `http://localhost:8000`。
+
+## 📁 项目结构
+
+```
+CodeToArt/
+├── index.html          # 页面骨架（结构 + 外链样式/脚本，无内联逻辑）
+├── css/
+│   └── style.css        # 全部样式（神秘学玻璃拟态主题）
+├── js/
+│   ├── config.js        # 常量：塔罗牌库、调色板、灵媒设置、示例
+│   ├── utils.js         # 纯函数：代码分析、颜色/HTML 工具、占位提示
+│   ├── starfield.js     # 背景星空渲染层
+│   ├── engine.js        # 核心：粒子流场艺术引擎（生成/重绘/缩放）
+│   ├── input.js         # 输入层：粘贴 / 上传 / GitHub 仓库解析
+│   ├── tarot.js         # 命运幻境：塔罗三牌阵 + 灵媒解析（本地/AI）
+│   └── main.js          # 编排层：初始化各模块并连接 DOM 事件
+└── LICENSE
+```
+
+各层仅通过 `import/export` 通信，渲染与逻辑隔离，便于扩展（如替换为 p5.js / tsParticles 渲染层）。
 
 ## 🔮 使用方法
 
@@ -39,8 +61,9 @@ python -m http.server 8000
 
 ## 🛠 技术
 
-- 前端：HTML + CSS + 原生 JS（TailwindCSS / FontAwesome CDN）
-- 艺术引擎：Canvas2D 粒子流场（自研，含高清适配）
+- 前端：HTML + 原生 ES Modules（TailwindCSS / FontAwesome CDN，仅用于原子类与图标）
+- 架构：分层（配置 / 工具 / 渲染 / 引擎 / 输入 / 幻境 / 编排），渲染与逻辑隔离
+- 艺术引擎：Canvas2D 粒子流场（自研，含 `devicePixelRatio` 高清适配、缩放无损重绘）
 - 仓库解析：GitHub REST API（无鉴权，受速率限制）
 - 无后端、无构建步骤，可一键部署到 GitHub Pages。
 
