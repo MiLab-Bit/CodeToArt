@@ -9,23 +9,24 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="h-screen flex flex-col">
+
     <canvas id="starfield"></canvas>
 
     <!-- Header -->
-    <header class="relative z-10 h-16 border-b border-purple-900/50 flex items-center justify-between px-6 shrink-0">
+    <header class="relative z-10 flex items-center justify-between px-7 h-16 shrink-0 topbar">
         <div class="flex items-center gap-3">
-            <i class="fas fa-moon text-amber-300 text-xl"></i>
-            <h1 class="font-display text-2xl font-bold tracking-wider">
+            <i class="fa-solid fa-moon" style="color:#c9a96a"></i>
+            <h1 class="font-display text-2xl tracking-[0.16em]">
                 <span class="gold-text">CodeToArt</span>
-                <span class="text-xs font-sans font-normal text-purple-300/70 ml-2 tracking-normal">代码炼金术 ✦</span>
+                <span class="text-[11px] font-normal text-muted-2 ml-3 tracking-[0.3em]">代码炼金术 · ALCHEMY</span>
             </h1>
         </div>
-        <div class="flex items-center gap-4 text-sm text-purple-200/70">
-            <button id="settingsBtn" class="hover:text-amber-300 transition-colors" title="灵媒设置">
-                <i class="fas fa-sliders-h mr-1"></i> 灵媒
+        <div class="flex items-center gap-5 text-sm">
+            <button id="settingsBtn" class="text-muted hover:text-[#e6cd9a] transition-colors duration-300">
+                <i class="fa-solid fa-sliders mr-1.5"></i> 灵媒
             </button>
-            <span class="w-px h-4 bg-purple-800/60"></span>
-            <a href="https://github.com/MiLab-Bit/CodeToArt" target="_blank" class="hover:text-amber-300 transition-colors"><i class="fab fa-github mr-1"></i> GitHub</a>
+            <div class="divider"></div>
+            <a href="https://github.com/MiLab-Bit/CodeToArt" target="_blank" class="text-muted hover:text-[#e6cd9a] transition-colors duration-300"><i class="fa-brands fa-github mr-1.5"></i> GitHub</a>
         </div>
     </header>
 
@@ -33,145 +34,130 @@
     <main class="relative z-10 flex-1 flex flex-col md:flex-row overflow-hidden">
 
         <!-- Left: Input -->
-        <div class="w-full md:w-1/3 lg:w-1/4 flex flex-col border-r border-purple-900/40 rune-panel z-10">
-            <div class="p-3 border-b border-purple-900/40 flex gap-1 text-xs">
-                <button data-mode="paste" class="src-tab tab-active flex-1 py-1.5 rounded border border-purple-800/50 transition-colors">粘贴</button>
-                <button data-mode="upload" class="src-tab flex-1 py-1.5 rounded border border-purple-800/50 transition-colors">上传</button>
-                <button data-mode="repo" class="src-tab flex-1 py-1.5 rounded border border-purple-800/50 transition-colors">仓库</button>
+        <div class="w-full md:w-1/3 lg:w-1/4 flex flex-col panel" style="border-width:0 1px 0 0; border-color:var(--line);">
+            <div class="p-4 flex gap-2">
+                <button data-mode="paste" class="tab tab-active" style="flex:1">粘贴</button>
+                <button data-mode="upload" class="tab" style="flex:1">上传</button>
+                <button data-mode="repo" class="tab" style="flex:1">仓库</button>
             </div>
 
             <!-- paste -->
-            <div id="mode-paste" class="flex-1 flex flex-col p-3 gap-2 min-h-0">
-                <textarea id="codeInput" class="w-full flex-1 bg-[#0a0716] text-purple-100/90 p-3 font-code text-sm resize-none focus:outline-none rounded border border-purple-900/40 leading-relaxed transition-colors" spellcheck="false" placeholder="# 在此粘贴你的代码...\ndef dream():\n    while True:\n        yield '✨'"></textarea>
+            <div id="mode-paste" class="flex-1 flex flex-col p-4 gap-3 min-h-0">
+                <textarea id="codeInput" class="field flex-1 resize-none" spellcheck="false" placeholder="# 在此粘贴你的代码...&#10;def dream():&#10;    while True:&#10;        yield '✦'"></textarea>
                 <div class="flex gap-2">
-                    <button id="exampleHello" class="text-xs px-2 py-1 rounded bg-purple-900/50 hover:bg-purple-800/60 text-purple-200 transition-colors">Hello</button>
-                    <button id="exampleChaos" class="text-xs px-2 py-1 rounded bg-purple-900/50 hover:bg-purple-800/60 text-purple-200 transition-colors">Chaos</button>
+                    <button id="exampleHello" class="btn btn-ghost text-xs" style="padding:.4rem .8rem">Hello</button>
+                    <button id="exampleChaos" class="btn btn-ghost text-xs" style="padding:.4rem .8rem">Chaos</button>
                 </div>
             </div>
 
             <!-- upload -->
-            <div id="mode-upload" class="flex-1 flex flex-col p-3 gap-2 min-h-0 hidden">
-                <div id="dropzone" class="dropzone flex-1 rounded flex flex-col items-center justify-center text-center p-4 cursor-pointer text-purple-200/70">
-                    <i class="fas fa-cloud-arrow-up text-3xl text-amber-300/80 mb-2"></i>
+            <div id="mode-upload" class="flex-1 flex flex-col p-4 gap-3 min-h-0 hidden">
+                <div id="dropzone" class="dropzone flex-1 rounded-xl flex flex-col items-center justify-center text-center p-4 cursor-pointer text-muted">
+                    <i class="fa-solid fa-cloud-arrow-up text-2xl mb-3" style="color:#c9a96a"></i>
                     <p class="text-sm">拖入代码文件，或点击选择</p>
-                    <p class="text-[10px] text-purple-300/50 mt-1">支持任意文本/代码文件</p>
+                    <p class="text-[11px] text-muted-2 mt-1.5">支持任意文本 / 代码文件</p>
                 </div>
                 <input id="fileInput" type="file" accept=".txt,.py,.js,.ts,.jsx,.tsx,.java,.go,.rs,.c,.cpp,.h,.rb,.php,.json,.html,.css,.md,.sql,.sh" class="hidden">
-                <p id="uploadName" class="text-xs text-amber-200/80 truncate"></p>
+                <p id="uploadName" class="text-xs truncate" style="color:#e6cd9a"></p>
             </div>
 
             <!-- repo -->
-            <div id="mode-repo" class="flex-1 flex flex-col p-3 gap-2 min-h-0 hidden">
-                <input id="repoInput" type="text" placeholder="https://github.com/owner/repo" class="w-full bg-[#0a0716] text-purple-100/90 p-2.5 font-code text-xs rounded border border-purple-900/40 focus:outline-none">
-                <button id="repoFetchBtn" class="btn-oracle py-2 rounded text-white text-sm font-medium flex items-center justify-center gap-2">
-                    <i class="fas fa-hat-wizard"></i> 解析仓库
+            <div id="mode-repo" class="flex-1 flex flex-col p-4 gap-3 min-h-0 hidden">
+                <input id="repoInput" type="text" class="field" placeholder="https://github.com/owner/repo">
+                <button id="repoFetchBtn" class="btn btn-solid py-2.5">
+                    <i class="fa-solid fa-hat-wizard"></i> 解析仓库
                 </button>
-                <div id="repoStatus" class="text-[11px] text-purple-300/60 break-words"></div>
-                <p class="text-[10px] text-purple-300/40">无鉴权调用 GitHub API（有速率限制）。仅读取代码文本用于占卜。</p>
+                <div id="repoStatus" class="text-[11px] text-muted break-words leading-relaxed"></div>
+                <p class="text-[11px] text-muted-2 leading-relaxed">无鉴权调用 GitHub API（有速率限制）。仅读取代码文本用于占卜。</p>
             </div>
 
             <!-- controls -->
-            <div class="p-4 border-t border-purple-900/40 space-y-3">
+            <div class="p-5 space-y-5" style="border-top:1px solid var(--line)">
                 <div>
-                    <div class="flex justify-between text-xs text-purple-300/80 mb-1">
-                        <span>抽象程度 (Abstraction)</span>
-                        <span id="abstractionVal" class="text-amber-300">8</span>
+                    <div class="flex justify-between text-xs text-muted mb-2.5">
+                        <span class="tracking-wide">抽象程度 · ABSTRACTION</span>
+                        <span id="abstractionVal" style="color:#e6cd9a">8</span>
                     </div>
-                    <input type="range" id="abstractionRange" min="1" max="10" value="8" class="w-full h-1 bg-purple-800 rounded-lg appearance-none cursor-pointer accent-amber-400">
+                    <input type="range" id="abstractionRange" min="1" max="10" value="8" class="w-full">
                 </div>
-                <button id="generateBtn" class="btn-gold w-full py-3 rounded font-display tracking-wide flex justify-center items-center gap-2 text-sm">
-                    <i class="fas fa-wand-magic-sparkles"></i> 凝炼艺术画
+                <button id="generateBtn" class="btn btn-solid w-full py-3 font-display tracking-[0.14em] text-sm">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> 凝炼艺术画
                 </button>
             </div>
         </div>
 
         <!-- Right: Canvas -->
-        <div class="flex-1 relative flex flex-col items-center justify-center p-4 md:p-8 overflow-hidden">
-            <div class="absolute top-0 left-0 w-full h-full opacity-40 pointer-events-none overflow-hidden">
-                <div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-900/20 rounded-full blur-3xl"></div>
-                <div class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-amber-900/10 rounded-full blur-3xl"></div>
-            </div>
-
-            <div id="statsPanel" class="absolute top-6 right-6 rune-panel rounded-lg p-4 w-60 transform translate-x-full opacity-0 transition-all duration-500 z-20">
-                <h3 class="text-xs font-bold text-purple-300/80 uppercase mb-3 border-b border-purple-800/50 pb-2 font-display tracking-widest">代码逻辑映射</h3>
-                <ul class="space-y-3">
-                    <li class="flex items-center justify-between text-sm"><span class="text-amber-300"><i class="fas fa-sun mr-2"></i>函数</span><span id="funcCount" class="font-code text-white">0</span></li>
-                    <li class="flex items-center justify-between text-sm"><span class="text-cyan-300"><i class="fas fa-recycle mr-2"></i>循环</span><span id="loopCount" class="font-code text-white">0</span></li>
-                    <li class="flex items-center justify-between text-sm"><span class="text-emerald-300"><i class="fas fa-code-branch mr-2"></i>分支</span><span id="branchCount" class="font-code text-white">0</span></li>
-                    <li class="flex items-center justify-between text-sm"><span class="text-fuchsia-300"><i class="fas fa-fire mr-2"></i>熵能</span><span id="entropyVal" class="font-code text-white">0</span></li>
-                    <li class="flex items-center justify-between text-sm"><span class="text-purple-200"><i class="fas fa-palette mr-2"></i>风格</span><span id="themeName" class="font-code text-white text-xs truncate max-w-[90px]">Classic</span></li>
-                </ul>
-            </div>
-
-            <div class="relative canvas-container rounded-sm border-[8px] border-[#15102b] bg-[#050308] shadow-2xl max-w-full max-h-full aspect-square md:aspect-auto md:h-[82vh] md:w-auto overflow-hidden" id="canvasWrap">
-                <canvas id="artCanvas" class="block w-full h-full"></canvas>
-                <div id="placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-purple-300/60 bg-[#07040f]/90 z-10 transition-opacity duration-500">
-                    <i class="fas fa-stars text-6xl mb-4 text-amber-300/70"></i>
-                    <p class="font-display text-lg gold-text">献上你的代码</p>
-                    <p class="text-xs text-purple-300/50 mt-2">凝炼成画 · 点击画作坠入幻境</p>
+        <div class="flex-1 relative flex flex-col items-center justify-center p-4 md:p-10 overflow-hidden">
+            <div id="statsPanel" class="absolute top-6 right-6 panel rounded-xl p-5 w-60 transform translate-x-full opacity-0 transition-all duration-500 z-20">
+                <h3 class="kicker mb-3" style="color:var(--gold); border-bottom:1px solid var(--line); padding-bottom:.7rem">代码逻辑映射</h3>
+                <div>
+                    <div class="stat-row"><span class="stat-label"><i class="fa-solid fa-sun"></i>函数</span><span id="funcCount" class="stat-val">0</span></div>
+                    <div class="stat-row"><span class="stat-label"><i class="fa-solid fa-recycle"></i>循环</span><span id="loopCount" class="stat-val">0</span></div>
+                    <div class="stat-row"><span class="stat-label"><i class="fa-solid fa-code-branch"></i>分支</span><span id="branchCount" class="stat-val">0</span></div>
+                    <div class="stat-row"><span class="stat-label"><i class="fa-solid fa-fire"></i>熵能</span><span id="entropyVal" class="stat-val">0</span></div>
+                    <div class="stat-row"><span class="stat-label"><i class="fa-solid fa-palette"></i>风格</span><span id="themeName" class="stat-val text-xs truncate" style="max-width:90px">Classic</span></div>
                 </div>
-                <div id="loadingOverlay" class="absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-20 hidden backdrop-blur-sm">
-                    <div class="loader mb-4"></div>
-                    <p id="loadingText" class="text-amber-200 font-display text-sm tracking-wider animate-pulse">炼金中…</p>
+            </div>
+
+            <div class="canvas-frame rounded-sm max-w-full max-h-full aspect-square md:aspect-auto md:h-[82vh] md:w-auto overflow-hidden" id="canvasWrap">
+                <div class="canvas-container relative w-full h-full">
+                    <canvas id="artCanvas" class="block w-full h-full"></canvas>
+                    <div id="placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-muted bg-[#07040f]/92 z-10 transition-opacity duration-500" style="background:rgba(7,4,15,.92)">
+                        <i class="fa-solid fa-stars text-5xl mb-5" style="color:rgba(201,169,106,.7)"></i>
+                        <p class="font-display text-lg gold-text tracking-[0.1em]">献上你的代码</p>
+                        <p class="text-xs text-muted-2 mt-2.5 tracking-wide">凝炼成画 · 点击画作坠入幻境</p>
+                    </div>
+                    <div id="loadingOverlay" class="absolute inset-0 flex flex-col items-center justify-center bg-black/75 z-20 hidden backdrop-blur-sm">
+                        <div class="loader mb-4"></div>
+                        <p id="loadingText" class="text-[#e6cd9a] font-display text-sm tracking-[0.2em] animate-pulse">炼金中…</p>
+                    </div>
                 </div>
             </div>
 
             <div id="actionBar" class="absolute bottom-8 flex gap-3 opacity-0 transition-opacity duration-500 transform translate-y-4 z-20">
-                <button id="downloadBtn" class="rune-panel px-5 py-2 rounded-full text-purple-100 hover:text-amber-300 hover:bg-white/5 transition-colors flex items-center gap-2 text-sm">
-                    <i class="fas fa-download"></i> 收藏
-                </button>
-                <button id="pauseBtn" class="rune-panel px-5 py-2 rounded-full text-purple-100 hover:text-amber-300 hover:bg-white/5 transition-colors flex items-center gap-2 text-sm">
-                    <i class="fas fa-pause" id="pauseIcon"></i> <span id="pauseText">暂停</span>
-                </button>
-                <button id="enterRealmBtn" class="btn-oracle px-5 py-2 rounded-full text-white flex items-center gap-2 text-sm">
-                    <i class="fas fa-door-open"></i> 进入幻境
-                </button>
+                <button id="downloadBtn" class="btn btn-ghost"><i class="fa-solid fa-download"></i> 收藏</button>
+                <button id="pauseBtn" class="btn btn-ghost"><i class="fa-solid fa-pause" id="pauseIcon"></i> <span id="pauseText">暂停</span></button>
+                <button id="enterRealmBtn" class="btn btn-solid"><i class="fa-solid fa-door-open"></i> 进入幻境</button>
             </div>
         </div>
     </main>
 
     <!-- Realm Overlay -->
-    <div id="realm" class="fixed inset-0 z-50 hidden items-center justify-center p-4 md:p-8 overflow-y-auto" style="background:radial-gradient(1200px 800px at 50% -10%, rgba(124,58,237,0.25), transparent 60%), linear-gradient(180deg,#05030f,#0d0a1f);">
-        <div class="realm-fade w-full max-w-5xl rune-panel rounded-2xl p-6 md:p-10 relative">
-            <button id="closeRealmBtn" class="absolute top-4 right-4 text-purple-300/70 hover:text-amber-300 text-xl"><i class="fas fa-xmark"></i></button>
-            <div class="text-center mb-6">
-                <p class="font-art text-3xl gold-text">命运幻境</p>
-                <p class="text-xs text-purple-300/60 tracking-[0.3em] font-display mt-1">THE ORACLE'S REALM</p>
+    <div id="realm" class="fixed inset-0 z-50 hidden items-center justify-center p-4 md:p-8 overflow-y-auto scrim">
+        <div class="realm-fade w-full max-w-5xl panel rounded-2xl p-7 md:p-11 relative">
+            <button id="closeRealmBtn" class="absolute top-4 right-5 text-muted hover:text-[#e6cd9a] text-xl transition-colors duration-300"><i class="fa-solid fa-xmark"></i></button>
+            <div class="text-center mb-7">
+                <p class="font-art text-4xl gold-text">命运幻境</p>
+                <p class="kicker mt-2" style="color:var(--gold)">THE ORACLE'S REALM</p>
             </div>
 
-            <div id="tarotStage" class="flex flex-wrap justify-center gap-5 md:gap-8 my-6"></div>
+            <div id="tarotStage" class="flex flex-wrap justify-center gap-6 md:gap-9 my-8"></div>
 
             <div class="flex flex-wrap justify-center gap-3 mb-4">
-                <button id="drawBtn" class="btn-oracle px-6 py-2.5 rounded-full text-white text-sm font-medium flex items-center gap-2">
-                    <i class="fas fa-cards-blank"></i> 抽取塔罗
-                </button>
-                <button id="revealBtn" class="btn-gold px-6 py-2.5 rounded-full text-sm font-medium flex items-center gap-2 opacity-40 pointer-events-none" disabled>
-                    <i class="fas fa-eye"></i> 揭示解析
-                </button>
-                <button id="recolorBtn" class="rune-panel px-6 py-2.5 rounded-full text-purple-100 hover:text-amber-300 text-sm flex items-center gap-2 opacity-40 pointer-events-none" disabled>
-                    <i class="fas fa-fill-drip"></i> 以塔罗之色重绘
-                </button>
+                <button id="drawBtn" class="btn btn-solid py-2.5"><i class="fa-solid fa-cards-blank"></i> 抽取塔罗</button>
+                <button id="revealBtn" class="btn btn-solid py-2.5 opacity-40 pointer-events-none" disabled><i class="fa-solid fa-eye"></i> 揭示解析</button>
+                <button id="recolorBtn" class="btn btn-ghost py-2.5 opacity-40 pointer-events-none" disabled><i class="fa-solid fa-fill-drip"></i> 以塔罗之色重绘</button>
             </div>
 
-            <div id="readingPanel" class="mt-4 max-h-[42vh] overflow-y-auto pr-2 text-sm leading-relaxed text-purple-100/90 font-sc"></div>
+            <div id="readingPanel" class="mt-5 max-h-[42vh] overflow-y-auto pr-2 font-serif" style="font-size:1rem"></div>
         </div>
     </div>
 
     <!-- Settings Modal -->
-    <div id="settingsModal" class="fixed inset-0 z-[60] hidden items-center justify-center bg-black/70 p-4">
-        <div class="rune-panel rounded-xl p-6 w-full max-w-md relative">
-            <button id="closeSettingsBtn" class="absolute top-3 right-3 text-purple-300/70 hover:text-amber-300"><i class="fas fa-xmark"></i></button>
-            <h3 class="font-display text-lg gold-text mb-1">灵媒设置</h3>
-            <p class="text-[11px] text-purple-300/60 mb-4">不填也能玩：留空时由本地神秘学规则生成解析。填入任意兼容 OpenAI 的 API Key 可由 AI 增强解读。</p>
-            <label class="block text-xs text-purple-300/80 mb-1">API Key（可选）</label>
-            <input id="apiKey" type="password" placeholder="sk-..." class="w-full bg-[#0a0716] text-purple-100/90 p-2 rounded border border-purple-900/40 focus:outline-none text-sm mb-3">
-            <label class="block text-xs text-purple-300/80 mb-1">Base URL</label>
-            <input id="apiBase" type="text" placeholder="https://api.openai.com/v1" class="w-full bg-[#0a0716] text-purple-100/90 p-2 rounded border border-purple-900/40 focus:outline-none text-sm mb-3">
-            <label class="block text-xs text-purple-300/80 mb-1">模型</label>
-            <input id="apiModel" type="text" placeholder="gpt-4o-mini" class="w-full bg-[#0a0716] text-purple-100/90 p-2 rounded border border-purple-900/40 focus:outline-none text-sm mb-4">
+    <div id="settingsModal" class="fixed inset-0 z-[60] hidden items-center justify-center scrim p-4">
+        <div class="panel rounded-2xl p-7 w-full max-w-md relative">
+            <button id="closeSettingsBtn" class="absolute top-4 right-5 text-muted hover:text-[#e6cd9a] transition-colors duration-300"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="font-display text-lg gold-text tracking-wide">灵媒设置</h3>
+            <p class="text-[11px] text-muted leading-relaxed mt-2 mb-5">不填也能玩：留空时由本地神秘学规则生成解析。填入任意兼容 OpenAI 的 API Key 可由 AI 增强解读。</p>
+            <label class="block text-xs text-muted mb-1.5 tracking-wide">API Key（可选）</label>
+            <input id="apiKey" type="password" placeholder="sk-..." class="field mb-3.5">
+            <label class="block text-xs text-muted mb-1.5 tracking-wide">Base URL</label>
+            <input id="apiBase" type="text" placeholder="https://api.openai.com/v1" class="field mb-3.5">
+            <label class="block text-xs text-muted mb-1.5 tracking-wide">模型</label>
+            <input id="apiModel" type="text" placeholder="gpt-4o-mini" class="field mb-5">
             <div class="flex gap-2">
-                <button id="saveSettingsBtn" class="btn-gold flex-1 py-2 rounded text-sm font-medium">保存</button>
-                <button id="cancelSettingsBtn" class="rune-panel flex-1 py-2 rounded text-purple-100 hover:text-amber-300 text-sm">取消</button>
+                <button id="saveSettingsBtn" class="btn btn-solid flex-1">保存</button>
+                <button id="cancelSettingsBtn" class="btn btn-ghost flex-1">取消</button>
             </div>
         </div>
     </div>

@@ -44,8 +44,8 @@ function drawCards(){
         el.innerHTML = `
             <div class="tarot-inner">
                 <div class="tarot-face tarot-back flex flex-col items-center justify-center">
-                    <i class="fas fa-moon text-amber-300/80 text-2xl mb-2"></i>
-                    <span class="font-display text-xs text-purple-200/70 tracking-widest">${SPREAD[i]}</span>
+                    <i class="fas fa-moon text-gold text-2xl mb-2"></i>
+                    <span class="font-display text-xs text-muted tracking-[0.2em]">${SPREAD[i]}</span>
                 </div>
                 <div class="tarot-face tarot-front" style="border-color:${card.color}88; box-shadow:0 0 28px ${card.color}55;">
                     <div class="tarot-icon">${card.icon}</div>
@@ -86,7 +86,7 @@ function recolorWithTarot(){
 async function revealReading(){
     if(!drawnCards.length) return;
     const analysis = getAnalysis();
-    readingPanel.innerHTML = '<div class="flex items-center gap-2 text-amber-300"><div class="loader" style="width:18px;height:18px;border-width:2px"></div> 灵媒正在凝视代码与牌阵…</div>';
+    readingPanel.innerHTML = '<div class="flex items-center gap-2 text-gold"><div class="loader" style="width:18px;height:18px;border-width:2px"></div> 灵媒正在凝视代码与牌阵…</div>';
     let aiText = null;
     if(oracleSettings.key){ aiText = await callOracle(analysis, drawnCards); }
     const local = generateLocalReading(analysis, drawnCards);
@@ -144,7 +144,7 @@ function generateLocalReading(analysis, cards){
     ];
     let html = '<div class="reading-section"><h4>✦ 三牌阵 · 代码命运</h4>';
     positions.forEach(p => {
-        html += `<p class="mb-1"><span class="text-amber-300 font-display">${p.pos}</span> · <b>${p.c.icon} ${p.c.n}</b>（${p.c.energy}）<br><span class="text-purple-200/80 text-[13px]">${p.c.up}</span></p>`;
+        html += `<p class="mb-1"><span class="text-gold font-display">${p.pos}</span> · <b>${p.c.icon} ${p.c.n}</b>（${p.c.energy}）<br><span class="text-muted text-[13px]">${p.c.up}</span></p>`;
     });
     html += '</div>';
 
@@ -154,14 +154,14 @@ function generateLocalReading(analysis, cards){
     else if(analysis.entropy <= 25) struct = '熵能清浅（' + analysis.entropy + '），结构澄明如镜，宜守其简。';
     else struct = '熵能中和（' + analysis.entropy + '），刚柔相济，是可塑之器。';
     html += `<div class="reading-section"><h4>✦ 代码结构占卜</h4><p>${struct}</p>`;
-    html += `<p class="text-[13px] text-purple-200/80">函数 ${analysis.functions} · 循环 ${analysis.loops} · 分支 ${analysis.branches}。${adviceLine(analysis)}</p></div>`;
+    html += `<p class="text-[13px] text-muted">函数 ${analysis.functions} · 循环 ${analysis.loops} · 分支 ${analysis.branches}。${adviceLine(analysis)}</p></div>`;
 
     const fortunes = ['大吉 · 灵光乍现', '中平 · 静水流深', '需谨慎 · 暗流潜涌'];
     const luck = fortunes[(analysis.entropy + cards[0].n.length + cards[2].energy.length) % 3];
     const combined = cards.map(c => c.energy).join('、');
     html += `<div class="reading-section"><h4>✦ 综合解析</h4><p>三牌能量「${combined}」交织于你的代码气场。`;
     html += ` ${cards[1].n}昭示当下：当以「${cards[1].energy}」之心面对此代码——${cards[1].up}</p>`;
-    html += `<p class="mt-1 text-[13px] text-amber-200/80">运势评级：<b>${luck}</b></p></div>`;
+    html += `<p class="mt-1 text-[13px] text-muted">运势评级：<b>${luck}</b></p></div>`;
 
     return html;
 }
