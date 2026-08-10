@@ -65,7 +65,20 @@ CodeToArt/
 - 架构：分层（配置 / 工具 / 渲染 / 引擎 / 输入 / 幻境 / 编排），渲染与逻辑隔离
 - 艺术引擎：Canvas2D 粒子流场（自研，含 `devicePixelRatio` 高清适配、缩放无损重绘）
 - 仓库解析：GitHub REST API（无鉴权，受速率限制）
-- 无后端、无构建步骤，可一键部署到 GitHub Pages。
+- 无后端、无构建步骤，已部署到 Cloudflare Pages（`https://codetoart.pages.dev`）。
+
+## ☁️ 部署到 Cloudflare Pages
+
+项目已部署到 Cloudflare Pages：`https://codetoart.pages.dev`（每次部署也会生成一个预览子域）。
+
+```bash
+# 需要 Wrangler 与 Cloudflare API Token（账户 ID + Pages 编辑权限）
+export CLOUDFLARE_API_TOKEN=xxxx
+export CLOUDFLARE_ACCOUNT_ID=xxxx
+npx wrangler pages deploy . --project-name codetoart --branch main
+```
+
+> ⚠️ 若本机走本地代理（如 Clash / V2Ray，常见端口 7897），部署最后一步 `POST .../deployments`（大请求体）可能被代理断开（`UND_ERR_SOCKET: other side closed`）。遇到时先 `unset HTTP_PROXY HTTPS_PROXY http_proxy https_proxy` 直连再部署。
 
 ## 📜 License
 
