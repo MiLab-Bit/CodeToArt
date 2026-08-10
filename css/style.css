@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500&family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;600&display=swap');
+/* 字体改为非阻塞加载，见 index.html 的 media="print" onload 技巧 */
 
 /* ===== Palette ===== */
 :root{
@@ -189,3 +189,139 @@ input[type=range]::-moz-range-thumb{ width:14px; height:14px; border:none; borde
 
 /* small uppercase kicker */
 .kicker{ font-family:'Cinzel',serif; font-size:10px; letter-spacing:.34em; text-transform:uppercase; color:var(--muted-2); }
+
+/* ===== Tailwind-lite 工具类（去掉 CDN 依赖，布局自托管） ===== */
+.flex{ display:flex; }
+.flex-col{ flex-direction:column; }
+.flex-row{ flex-direction:row; }
+.flex-wrap{ flex-wrap:wrap; }
+.items-center{ align-items:center; }
+.justify-between{ justify-content:space-between; }
+.justify-center{ justify-content:center; }
+.flex-1{ flex:1 1 0%; }
+.shrink-0{ flex-shrink:0; }
+.relative{ position:relative; }
+.absolute{ position:absolute; }
+.fixed{ position:fixed; }
+.inset-0{ top:0; right:0; bottom:0; left:0; }
+.w-full{ width:100%; }
+.h-screen{ height:100vh; }
+.h-full{ height:100%; }
+.h-16{ height:4rem; }
+.w-60{ width:15rem; }
+.max-w-full{ max-width:100%; }
+.max-w-5xl{ max-width:64rem; }
+.max-w-md{ max-width:28rem; }
+.min-h-0{ min-height:0; }
+.aspect-square{ aspect-ratio:1/1; }
+.block{ display:block; }
+.hidden{ display:none; }
+.overflow-hidden{ overflow:hidden; }
+.overflow-y-auto{ overflow-y:auto; }
+.cursor-pointer{ cursor:pointer; }
+
+.p-4{ padding:1rem; }
+.p-5{ padding:1.25rem; }
+.p-7{ padding:1.75rem; }
+.px-7{ padding-left:1.75rem; padding-right:1.75rem; }
+.py-2\.5{ padding-top:.625rem; padding-bottom:.625rem; }
+.py-3{ padding-top:.75rem; padding-bottom:.75rem; }
+.gap-2{ gap:.5rem; }
+.gap-3{ gap:.75rem; }
+.gap-6{ gap:1.5rem; }
+.ml-3{ margin-left:.75rem; }
+.ml-1\.5{ margin-left:.375rem; }
+.mr-1\.5{ margin-right:.375rem; }
+.mt-1{ margin-top:.25rem; }
+.mt-1\.5{ margin-top:.375rem; }
+.mt-2{ margin-top:.5rem; }
+.mt-2\.5{ margin-top:.625rem; }
+.mt-5{ margin-top:1.25rem; }
+.mb-1{ margin-bottom:.25rem; }
+.mb-2{ margin-bottom:.5rem; }
+.mb-2\.5{ margin-bottom:.625rem; }
+.mb-3{ margin-bottom:.75rem; }
+.mb-4{ margin-bottom:1rem; }
+.mb-5{ margin-bottom:1.25rem; }
+.my-8{ margin-top:2rem; margin-bottom:2rem; }
+.space-y-5 > * + *{ margin-top:1.25rem; }
+.pr-2{ padding-right:.5rem; }
+.top-4{ top:1rem; }
+.top-6{ top:1.5rem; }
+.right-5{ right:1.25rem; }
+.right-6{ right:1.5rem; }
+.bottom-8{ bottom:2rem; }
+
+.text-2xl{ font-size:1.5rem; line-height:2rem; }
+.text-xl{ font-size:1.25rem; }
+.text-sm{ font-size:.875rem; }
+.text-xs{ font-size:.75rem; }
+.text-\[11px\]{ font-size:11px; }
+.text-\[13px\]{ font-size:13px; }
+.font-normal{ font-weight:400; }
+.tracking-wide{ letter-spacing:.025em; }
+.tracking-\[0\.16em\]{ letter-spacing:.16em; }
+.tracking-\[0\.3em\]{ letter-spacing:.3em; }
+.tracking-\[0\.2em\]{ letter-spacing:.2em; }
+.tracking-\[0\.14em\]{ letter-spacing:.14em; }
+.leading-relaxed{ line-height:1.625; }
+.break-words{ overflow-wrap:break-word; }
+.truncate{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.text-center{ text-align:center; }
+
+.transition-colors{ transition-property:color,background-color,border-color,fill,stroke; }
+.transition-all{ transition-property:all; }
+.transition-opacity{ transition-property:opacity; }
+.duration-300{ transition-duration:.3s; }
+.duration-500{ transition-duration:.5s; }
+
+.rounded-xl{ border-radius:.75rem; }
+.rounded-2xl{ border-radius:1rem; }
+.rounded-sm{ border-radius:.125rem; }
+
+.translate-x-full{ transform:translateX(100%); }
+.translate-y-4{ transform:translateY(1rem); }
+.opacity-0{ opacity:0; }
+.opacity-40{ opacity:.4; }
+.pointer-events-none{ pointer-events:none; }
+.backdrop-blur-sm{ backdrop-filter:blur(4px); }
+
+.bg-black\/75{ background:rgba(0,0,0,.75); }
+
+.hover\:text-\[\#e6cd9a\]:hover{ color:#e6cd9a; }
+
+@media (min-width:768px){
+  .md\:flex-row{ flex-direction:row; }
+  .md\:w-1\/3{ width:33.333333%; }
+  .md\:w-auto{ width:auto; }
+  .md\:h-\[82vh\]{ height:82vh; }
+  .md\:aspect-auto{ aspect-ratio:auto; }
+  .md\:p-10{ padding:2.5rem; }
+  .md\:p-8{ padding:2rem; }
+  .md\:p-11{ padding:2.75rem; }
+  .md\:gap-9{ gap:2.25rem; }
+}
+@media (min-width:1024px){
+  .lg\:w-1\/4{ width:25%; }
+}
+
+/* ===== 补充工具类 ===== */
+.gap-5{ gap:1.25rem; }
+.mb-1\.5{ margin-bottom:.375rem; }
+.mb-3\.5{ margin-bottom:.875rem; }
+.mb-7{ margin-bottom:1.75rem; }
+.max-h-full{ max-height:100%; }
+.max-h-\[42vh\]{ max-height:42vh; }
+.text-lg{ font-size:1.125rem; }
+.text-4xl{ font-size:2.25rem; line-height:2.5rem; }
+.text-5xl{ font-size:3rem; line-height:1; }
+.text-\[\#e6cd9a\]{ color:#e6cd9a; }
+.tracking-\[0\.1em\]{ letter-spacing:.1em; }
+.z-\[60\]{ z-index:60; }
+.z-10{ z-index:10; }
+.z-20{ z-index:20; }
+.z-50{ z-index:50; }
+.resize-none{ resize:none; }
+.transform{ transform:translateZ(0); }
+.animate-pulse{ animation:pulse 2s cubic-bezier(.4,0,.6,1) infinite; }
+@keyframes pulse{ 0%,100%{ opacity:1; } 50%{ opacity:.4; } }

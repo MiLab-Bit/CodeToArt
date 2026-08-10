@@ -7,7 +7,7 @@ export function getSeedLabel(){ return seedLabel; }
 
 export function initInput(){
     // 输入模式切换
-    document.querySelectorAll('.src-tab').forEach(tab => {
+    document.querySelectorAll('.tab').forEach(tab => {
         tab.addEventListener('click', () => {
             document.querySelectorAll('.src-tab').forEach(t => t.classList.remove('tab-active'));
             tab.classList.add('tab-active');
